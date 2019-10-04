@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>News</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+</head>
+<body>
+
+<nav class="level" style="margin-top:20px">
+    <p class="level-item has-text-centered">
+        <!-- <img src="https://bulma.io/images/bulma-type.png" alt="" style="height: 30px;"> -->
+        <span style="font-size:40px; font-weight:bold" >NEWS</span>
+    </p>
+</nav>
+
+<section class="hero is-primary is-bold has-text-centered">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                News - Updates of the World using Vuejs
+            </h1>
+            <h2 class="subtitle">
+                Get the latest news from around the world at this one stop.
+            </h2>
+        </div>
+    </div>
+</section>
+
+<div class="container" id="app">
+    <div class="level" style="margin-top:20px">
+        <div class="level-left"></div>
+        <div class="level-right has-text-centered">
+            <div class="level-item">
+                <div class="field">
+                    <label class="label">Sources</label>
+                    <div class="control select is-rounded">
+                        <select v-model="selSource" class="has-text-centered">
+                            <option value="">All</option>
+                            <option v-for="source in sources" v-bind:value="source.id">
+                                {{ source.name}} 
+                            </option>
+                        </select>
+
+                        {{ selSource }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="level-item">
+                <div class="field">
+                    <label class="label">Category</label>
+                    <div class="control select is-rounded">
+
+                        <select v-model="selCategory">
+                            <option value="all">All</option>
+                            <option v-for="category in categories" v-bind:value="category">
+                                {{ category | capitalize}}
+                            </option>
+                        </select>
+
+                        {{ selCategory}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="level-item">
+                <div class="field">
+                    <label class="label">Country</label>
+                    <div class="control select is-rounded">
+
+                        <select v-model="selCountry">
+                            <option value="all">All</option>
+                            <option v-for="country in countries" v-bind:value='country'>
+                                {{ country | capitalize }}
+                            </option>
+                        </select>
+
+                        {{ selCountry}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="level-item">
+                <div class="field">
+                    <label class="label">Search Term</label>
+                    <div class="control">
+
+                        <input v-model='searchKey' class="input is-rounded" type="text" placeholder="Type here...">
+                    </div>
+                </div>
+
+               
+            </div>
+
+            {{ searchKey}}
+
+            <div class="level-item">
+                <div class="field">
+                    <label class="label">&nbsp;</label>
+                    <div class="control">
+
+                        <button class="button is-rounded is-primary" type="text" @click="loadArticles"
+                                placeholder="Type here...">Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ apiUrl}}
+
+    <section style="margin-top:70px">
+        <div class="columns is-multiline">
+
+
+            <div class="column is-3" v-for="article in articles" v-bind:value="article.title">
+                <div class="card">
+                    <div class="card-image">
+                        <figure class="image is-4by3">
+                            <!--<img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">-->
+                            <img class="image" :src="article.urlToImage" alt="Placeholder image"> 
+                        </figure>
+                    </div>
+
+                    <div class="content">
+                        <p class="subtitle is-6 level-right">@johnsmith</p>
+
+                        <small>{{ article.description }}</small>
+                        <br>
+                        <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script>
+
+    
+
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                selSource: 'all',
+                sources: [],
+
+                selCategory: 'all',
+                categories: ['entertainment', 'general', 'health', 'science', 'sports', 'technology'],
+                
+                selCountry: 'all',
+                countries: ['ae', 'ar', 'in'],
+                
+                searchKey: '',
+
+                articles: [],
+                loading: true
+            }
+        },
+        methods: {
+            loadArticles: function (event) {
+                axios.get("https://newsapi.org/v2/top-headlines?sources=" + this.selSource +"&apiKey=226202a85d0b48ce968b6c62cb164355")
+                    .then(response => {
+                        console.log("Articles " + this.selSource);
+                        console.log(response.data.articles);
+                        this.articles = response.data.articles;
+
+                    })
+                    .catch(error => {
+                        console.log("Error" + error);
+                    })
+                    .finally()
+                {
+
+                    console.log("finally");
+                }
+            },
+        },
+        filters: {
+            capitalize: function(value){
+                if(!value) return '';
+                value = value.toString();
+                return value.charAt(0).toUpperCase() + value.slice(1);
+            }
+        },
+        computed: {
+            apiUrl: function(){
+                return "https://newsapi.org/v2/top-headlines?sources=" + this.selSource +"&apiKey=226202a85d0b48ce968b6c62cb164355";
+            }
+        },
+        mounted() {
+            axios
+                .get('https://newsapi.org/v2/sources?apiKey=226202a85d0b48ce968b6c62cb164355')
+                .then(response => {
+                    console.log("API Called Successfully");
+                    console.log(response.data.sources);
+                    this.sources = response.data.sources;
+                })
+                .catch(error => {
+                    console.log("Error: " + error);
+                })
+                .finally(() => {
+                    this.loading = false
+                    console.log("finally");
+                });
+        }
+    })
+
+</script>
+
+
+</body>
+</html>
